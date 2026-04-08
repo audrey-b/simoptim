@@ -1,0 +1,60 @@
+---
+title: "Example"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Example}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(simoptim)
+library(coda)
+set.seed(1234)
+```
+
+For illustrative purposes, posterior samples are obtained as independent realizations from a normal distribution, bypassing the use of MCMC methods. 
+
+```{r}
+simulate_mcmc_list <- function(n_iter = 100, n_burnin = 1000, n_chains = 3,
+                                mu_mean = 0, mu_sd = 1,
+                                lambda_mean = 1, lambda_sd = 0.5) {
+  chains <- lapply(1:n_chains, function(i) {
+    mcmc(cbind(
+      mu     = rnorm(n_iter, mean = mu_mean, sd = mu_sd),
+      lambda = rnorm(n_iter, mean = lambda_mean, sd = lambda_sd)
+    ), start = n_burnin + 1)
+  })
+  
+  mcmc.list(chains)
+}
+
+analyses_results <- lapply(1:8, function(i) simulate_mcmc_list())
+run_times <- rnorm(8, 20, 2)
+```
+
+```{r}
+summaries <- lapply(analyses_results, summarize_mcmc, parameter = "mu")
+
+means  <- sapply(summaries, `[[`, "mean")
+mcmcses <- sapply(summaries, `[[`, "mcmcse")
+vars   <- sapply(summaries, `[[`, "var")
+```
+
+```{r}
+var_ests <- estimate_variances(means, mcmcses, vars)
+```
+
+```{r}
+optim_2(10, 
+       var_ests$estimate_var1/var_ests$estimate_var2, 
+       min_m = 20, 
+       p = 0.05)
+```
