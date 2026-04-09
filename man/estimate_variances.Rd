@@ -2,20 +2,49 @@
 % Please edit documentation in R/estimate_variances.R
 \name{estimate_variances}
 \alias{estimate_variances}
-\title{estimate_variances}
+\title{Estimate between-dataset and within-dataset variances}
 \usage{
 estimate_variances(estimates, mcmcses, posterior.variances)
 }
 \arguments{
-\item{estimates}{a vector of estimates for each dataset in the simulation}
+\item{estimates}{A numeric vector of posterior means, one per simulation
+dataset.}
 
-\item{mcmcses}{a vector of estimated monte carlo standard errors for each dataset in the simulation}
+\item{mcmcses}{A numeric vector of Monte Carlo standard errors of the
+posterior mean, one per simulation dataset.}
 
-\item{posterior.variances}{a vector of posterior variances for each dataset in the simulation}
+\item{posterior.variances}{A numeric vector of posterior variances, one per
+simulation dataset.}
 }
 \value{
-A list of estimated variances.
+A named list with two numeric elements:
+  \describe{
+    \item{estimate_var1}{Estimated between-dataset variance
+      \eqn{\hat{\sigma}_1^2}, computed as the sample variance of
+      \code{estimates} minus the mean squared MCMCSE.}
+    \item{estimate_var2}{Estimated within-dataset posterior variance
+      \eqn{\hat{\sigma}_2^2}, computed as the mean of
+      \code{posterior.variances}.}
+  }
 }
 \description{
-Requires vectors to be of lenght 2 or more. Quantities to input are after transformation by g. All vectors must be ordered by the same datasets.
+Estimates two variance components from a set of simulation datasets:
+the between-dataset variance of the estimator (\eqn{\sigma_1^2}) and the
+average within-dataset posterior variance (\eqn{\sigma_2^2}). These are
+the key inputs to \code{\link{optim}} and \code{\link{optim_2}} for
+computing optimal sampling effort allocation.
+}
+\details{
+Requires a minimum of 2 datasets. All input vectors must have the same
+length and be ordered consistently (i.e. element \code{i} of each vector
+must correspond to the same dataset).
+}
+\note{
+\code{estimate_var1} can be negative in small samples or when MCMC
+  error is large relative to between-dataset variation. Consider whether
+  a non-negativity constraint is appropriate for your use case.
+}
+\seealso{
+\code{\link{summarize_mcmc}}, \code{\link{optim}},
+  \code{\link{optim_2}}
 }

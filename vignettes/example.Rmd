@@ -1,8 +1,8 @@
 ---
-title: "Example"
+title: "Getting Started with simoptim"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Example}
+  %\VignetteIndexEntry{Getting Started with simoptim}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,13 +14,28 @@ knitr::opts_chunk$set(
 )
 ```
 
+## Overview
+
+In a Bayesian simulation study, two sources of Monte Carlo error affect the
+precision of your estimator:
+
+- **Between-dataset variance** (\eqn{\sigma_1^2 / r}): variability across the `r` simulated datasets.
+- **Within-dataset variance** (\eqn{\sigma_2^2} / (r \cdot m)): variability due to running MCMC for only `m` effective samples per dataset.
+
+`simoptim` helps you choose `r` and `m` to meet a precision target while
+minimising total compute time.
+
 ```{r setup}
 library(simoptim)
 library(coda)
 set.seed(1234)
 ```
 
-For illustrative purposes, posterior samples are obtained as independent realizations from a normal distribution, bypassing the use of MCMC methods. 
+## Step 1: Generate pilot MCMC results
+
+In practice you would supply real MCMC output. Here, we simulate
+`mcmc.list` objects directly from a normal distribution to illustrate
+the workflow.
 
 ```{r}
 simulate_mcmc_list <- function(n_iter = 100, n_burnin = 1000, n_chains = 3,
@@ -36,9 +51,15 @@ simulate_mcmc_list <- function(n_iter = 100, n_burnin = 1000, n_chains = 3,
   mcmc.list(chains)
 }
 
+# 8 pilot datasets and their fictional run times
 analyses_results <- lapply(1:8, function(i) simulate_mcmc_list())
 run_times <- rnorm(8, 20, 2)
 ```
+
+## Step 2: Summarise posterior samples
+
+`summarize_mcmc()` extracts the posterior mean, MCMCSE, and variance for a
+given parameter from each `mcmc.list`.
 
 ```{r}
 summaries <- lapply(analyses_results, summarize_mcmc, parameter = "mu")
@@ -48,13 +69,28 @@ mcmcses <- sapply(summaries, `[[`, "mcmcse")
 vars   <- sapply(summaries, `[[`, "var")
 ```
 
+## Step 3: Estimate variance components
+
+`estimate_variances()` uses the pilot summaries to estimate \eqn{\sigma_1^2}
+(between-dataset) and \eqn{\sigma_2^2} (within-dataset).
+
 ```{r}
 var_ests <- estimate_variances(means, mcmcses, vars)
 ```
 
+## Step 4: Compute optimal allocation
+
+`optim_2()` takes the ratio of burn-in time to per-effective-sample time and
+the variance ratio, along with your precision target `p`, and returns the
+optimal `r` and `m`.
+
 ```{r}
+var_ratio <- var_ests$estimate_var1/var_ests$estimate_var2
 optim_2(10, 
-       var_ests$estimate_var1/var_ests$estimate_var2, 
+       var_ratio,
        min_m = 20, 
        p = 0.05)
 ```
+The output gives the recommended number of simulation datasets (`r`) and
+effective posterior samples per dataset (`m`) to achieve a standardised
+precision of `p = 0.05` assuming the burn-in period takes 10 times longer than simulating an effective posterior sample.

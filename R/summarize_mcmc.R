@@ -1,11 +1,25 @@
-#' summarize_mcmc
+#' Summarize posterior samples for a parameter from an MCMC object
 #'
-#' Requires at least 2 datasets. Quantities to input are after transformation by g. All vectors must be ordered by the same datasets.
+#' Extracts posterior samples for a single parameter from an \code{mcmc.list}
+#' object, optionally applies a transformation, and returns the posterior mean,
+#' Monte Carlo standard error (MCMCSE), and posterior variance.
 #'
-#' @param mcmc_object blah
-#' @param parameter blah
-#' @param g blah
-#' @return A list of estimated variances.
+#' @param mcmc_object An \code{mcmc.list} object containing posterior samples
+#'   (e.g. as returned by JAGS or similar MCMC software).
+#' @param parameter A character string giving the name of the parameter to
+#'   summarize. Must match a column name in \code{mcmc_object}.
+#' @param g A function to apply to the posterior samples before summarizing.
+#'   Defaults to \code{identity} (no transformation). Use this to summarize
+#'   derived quantities (e.g. \code{g = log} or \code{g = function(x) x^2}).
+#'
+#' @return A named list with three numeric elements:
+#'   \describe{
+#'     \item{mean}{Posterior mean of \code{g(parameter)}.}
+#'     \item{mcmcse}{Monte Carlo standard error of the posterior mean of \code{g(parameter)}.}
+#'     \item{var}{Posterior variance of \code{g(parameter)}.}
+#'   }
+#'
+#' @seealso \code{\link{estimate_variances}}, \code{\link{optim_2}}
 #' @export
 
 summarize_mcmc <- function(mcmc_object,

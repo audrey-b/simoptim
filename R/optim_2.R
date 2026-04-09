@@ -1,20 +1,35 @@
-#' optim_2
+#' Compute optimal MCMC sampling allocation (ratio parameterisation)
 #'
-#' A function to calculate the optimal allocation by specifying ratios.
+#' Determines the optimal number of simulation datasets \eqn{r} and effective
+#' posterior samples per dataset \eqn{m} using ratios of timing and variance
+#' components, rather than their absolute values. See \code{\link{optim}} for the full
+#' parameterisation.
 #'
-#' @param time_ratio average burnin time / average time per effective sample
-#' @param var_ratio sigma_1^2/sigma_2^2
-#' @param p Delta/sigma_1 in the paper
-#' @param min_m blah
-#' @return A list of optimal r and m.
+#' @param time_ratio Ratio of average burn-in time to average time per
+#'   effective sample (\eqn{\bar t_{\text{1}} / \bar t_{\text{2}}}).
+#' @param var_ratio Ratio of between-dataset posterior variance to
+#'   within-dataset variance (\eqn{\sigma_1^2 / \sigma_2^2}).
+#' @param p Standardised precision target \eqn{p = \Delta / \sigma_1}, where
+#' @param min_m Minimum allowable number of effective posterior samples per
+#'   dataset. Must be a positive integer. Defaults to \code{1}.
+#'
+#' @return A named list with two integer-valued elements:
+#'   \describe{
+#'     \item{r}{Optimal number of simulation datasets.}
+#'     \item{m}{Optimal number of effective posterior samples per dataset,
+#'       at least \code{min_m}.}
+#'   }
+#'
+#' @seealso \code{\link{optim}}, \code{\link{estimate_variances}},
+#'   \code{\link{mcmcse_total}}
 #' @export
 #'
 #' @examples
-#' optim_2(10^5, 1, min_m = 20, p = 0.05)
+#' optim_2(time_ratio = 10^5, var_ratio = 1, min_m = 20, p = 0.05)
 
-optim_2 <- function(time_ratio, #average burnin time / average time per effective sample
-                    var_ratio, #sigma_1^2/sigma_2^2
-                    p, #p = Delta/sigma_1 in the paper
+optim_2 <- function(time_ratio,
+                    var_ratio,
+                    p,
                     min_m = 1){
 
   m_optim <- max(min_m,

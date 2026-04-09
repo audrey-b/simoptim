@@ -2,22 +2,36 @@
 % Please edit documentation in R/mcmcse_total.R
 \name{mcmcse_total}
 \alias{mcmcse_total}
-\title{mcmcse_total}
+\title{Compute the total Monte Carlo standard error}
 \usage{
 mcmcse_total(var_1, var_2, r, m)
 }
 \arguments{
-\item{var_1}{sigma_1^2 in the paper}
+\item{var_1}{Between-dataset variance \eqn{\sigma_1^2}. See
+\code{\link{estimate_variances}}.}
 
-\item{var_2}{sigma_2^2 in the paper}
+\item{var_2}{Average within-dataset posterior variance \eqn{\sigma_2^2}.
+See \code{\link{estimate_variances}}.}
 
-\item{r}{blah}
+\item{r}{A positive integer giving the number of simulation datasets.}
 
-\item{m}{blah}
+\item{m}{A positive integer giving the number of effective posterior
+samples per dataset.}
 }
 \value{
-A list of optimal r and m.
+A single non-negative numeric value: the total MCMCSE,
+  \eqn{\sqrt{\sigma_1^2 / r + \sigma_2^2 / (r \cdot m)}}.
 }
 \description{
-A function to calculate the total MCMCSE.
+Computes the total MCMCSE of the simulation study estimator as a function
+of the number of simulation datasets \eqn{r}, the number of effective
+posterior samples per dataset \eqn{m}, and the two variance components.
+This can be used to assess the precision of a given allocation before or
+after running a study.
+}
+\examples{
+mcmcse_total(var_1 = 0.5, var_2 = 1.0, r = 100, m = 50)
+}
+\seealso{
+\code{\link{optim}}, \code{\link{optim_2}}
 }
