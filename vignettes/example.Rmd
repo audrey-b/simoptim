@@ -1,5 +1,6 @@
 ---
 title: "Getting Started with simoptim"
+author: "Audrey Beliveau"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Getting Started with simoptim}
@@ -37,23 +38,36 @@ In practice you would supply real MCMC output. Here, we simulate
 `mcmc.list` objects directly from a normal distribution to illustrate
 the workflow.
 
+We assume that, under large samples, the estimator $\hat{\theta}$ is
+approximately normally distributed:
+$$\hat{\theta} \sim N(\theta, \sigma_1^2)$$
+with true value $\theta = 0$ and $\sigma_1^2 = 1$.
+
+We further assume the posterior distribution is normal with mean
+$\hat{\theta}$ and the same variance:
+$$\theta \mid \hat{\theta} \sim N(\hat{\theta}, \sigma_2^2)$$
+with $\sigma_2^2 = 1$.
+
+Under this setup, $\sigma_1^2 = \sigma_2^2 = 1$, so the variance ratio
+$\sigma_1^2 / \sigma_2^2 = 1$.
+
 ```{r}
-simulate_mcmc_list <- function(n_iter = 100, n_burnin = 1000, n_chains = 3,
-                                mu_mean = 0, mu_sd = 1,
-                                lambda_mean = 1, lambda_sd = 0.5) {
-  chains <- lapply(1:n_chains, function(i) {
-    mcmc(cbind(
-      mu     = rnorm(n_iter, mean = mu_mean, sd = mu_sd),
-      lambda = rnorm(n_iter, mean = lambda_mean, sd = lambda_sd)
-    ), start = n_burnin + 1)
-  })
+simulate_mcmc_list <- function(n_iter = 1000, n_burnin = 100, n_chains = 3) {
+  # Draw the estimator thetahat ~ N(0, 1)
+  thetahat <- rnorm(1, mean = 0, sd = 1)
   
-  mcmc.list(chains)
+  # Posterior is N(thetahat, 1), same variance
+  chains <- lapply(1:n_chains, function(i) {
+    coda::mcmc(
+      matrix(rnorm(n_iter, mean = thetahat, sd = 1), ncol = 1,
+             dimnames = list(NULL, "theta")),
+      start = n_burnin + 1
+    )
+  })
+  coda::mcmc.list(chains)
 }
 
-# 8 pilot datasets and their fictional run times
 analyses_results <- lapply(1:8, function(i) simulate_mcmc_list())
-run_times <- rnorm(8, 20, 2)
 ```
 
 ## Step 2: Summarise posterior samples
@@ -62,7 +76,7 @@ run_times <- rnorm(8, 20, 2)
 given parameter from each `mcmc.list`.
 
 ```{r}
-summaries <- lapply(analyses_results, summarize_mcmc, parameter = "mu")
+summaries <- lapply(analyses_results, summarize_mcmc, parameter = "theta")
 
 means  <- sapply(summaries, `[[`, "mean")
 mcmcses <- sapply(summaries, `[[`, "mcmcse")
@@ -76,6 +90,7 @@ vars   <- sapply(summaries, `[[`, "var")
 
 ```{r}
 var_ests <- estimate_variances(means, mcmcses, vars)
+var_ests
 ```
 
 ## Step 4: Compute optimal allocation
