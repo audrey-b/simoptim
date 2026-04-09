@@ -4,7 +4,7 @@
 \alias{estimate_variances}
 \title{Estimate between-dataset and within-dataset variances}
 \usage{
-estimate_variances(estimates, mcmcses, posterior.variances)
+estimate_variances(estimates, mcmcses, posterior_variances)
 }
 \arguments{
 \item{estimates}{A numeric vector of posterior means, one per simulation
@@ -13,25 +13,25 @@ dataset.}
 \item{mcmcses}{A numeric vector of Monte Carlo standard errors of the
 posterior mean, one per simulation dataset.}
 
-\item{posterior.variances}{A numeric vector of posterior variances, one per
+\item{posterior_variances}{A numeric vector of posterior variances, one per
 simulation dataset.}
 }
 \value{
 A named list with two numeric elements:
   \describe{
-    \item{estimate_var1}{Estimated between-dataset variance
+    \item{var_between}{Estimated between-dataset variance
       \eqn{\hat{\sigma}_1^2}, computed as the sample variance of
       \code{estimates} minus the mean squared MCMCSE.}
-    \item{estimate_var2}{Estimated within-dataset posterior variance
+    \item{var_within}{Estimated within-dataset posterior variance
       \eqn{\hat{\sigma}_2^2}, computed as the mean of
-      \code{posterior.variances}.}
+      \code{posterior_variances}.}
   }
 }
 \description{
 Estimates two variance components from a set of simulation datasets:
 the between-dataset variance of the estimator (\eqn{\sigma_1^2}) and the
 average within-dataset posterior variance (\eqn{\sigma_2^2}). These are
-the key inputs to \code{\link{optim}} and \code{\link{optim_2}} for
+the key inputs to \code{\link{optimize_allocation}} and \code{\link{optimize_allocation_from_ratios}} for
 computing optimal sampling effort allocation.
 }
 \details{
@@ -40,11 +40,11 @@ length and be ordered consistently (i.e. element \code{i} of each vector
 must correspond to the same dataset).
 }
 \note{
-\code{estimate_var1} can be negative in small samples or when MCMC
+\code{var_between} can be negative in small samples or when MCMC
   error is large relative to between-dataset variation. Consider whether
   a non-negativity constraint is appropriate for your use case.
 }
 \seealso{
-\code{\link{summarize_mcmc}}, \code{\link{optim}},
-  \code{\link{optim_2}}
+\code{\link{summarize_mcmc}}, \code{\link{optimize_allocation}},
+  \code{\link{optimize_allocation_from_ratios}}
 }

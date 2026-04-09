@@ -20,8 +20,8 @@ knitr::opts_chunk$set(
 In a Bayesian simulation study, two sources of Monte Carlo error affect the
 precision of your estimator:
 
-- **Between-dataset variance** (\eqn{\sigma_1^2 / r}): variability across the `r` simulated datasets.
-- **Within-dataset variance** (\eqn{\sigma_2^2} / (r \cdot m)): variability due to running MCMC for only `m` effective samples per dataset.
+- **Between-dataset variance** ($\sigma_1^2 / r$): variability across the `r` simulated datasets.
+- **Within-dataset variance** ($\sigma_2^2 / (r \cdot m)$): variability due to running MCMC for only `m` effective samples per dataset.
 
 `simoptim` helps you choose `r` and `m` to meet a precision target while
 minimising total compute time.
@@ -52,7 +52,7 @@ Under this setup, $\sigma_1^2 = \sigma_2^2 = 1$, so the variance ratio
 $\sigma_1^2 / \sigma_2^2 = 1$.
 
 ```{r}
-simulate_mcmc_list <- function(n_iter = 1000, n_burnin = 100, n_chains = 3) {
+simulate_mcmc_list <- function(n_iter = 500, n_burnin = 100, n_chains = 3) {
   # Draw the estimator thetahat ~ N(0, 1)
   thetahat <- rnorm(1, mean = 0, sd = 1)
   
@@ -95,17 +95,35 @@ var_ests
 
 ## Step 4: Compute optimal allocation
 
-`optim_2()` takes the ratio of burn-in time to per-effective-sample time and
-the variance ratio, along with your precision target `p`, and returns the
-optimal `r` and `m`.
+`optimize_allocation()` takes individual values of burn-in time, time per effective sample,
+and the two variance components, along with your precision target `p`, and
+returns the optimal `r` and `m`.
 
 ```{r}
-var_ratio <- var_ests$estimate_var1/var_ests$estimate_var2
-optim_2(10, 
-       var_ratio,
-       min_m = 20, 
-       p = 0.05)
+optimize_allocation(burnin_time = 10,
+      eff_sample_time = 1,
+      var_between = var_ests$var_between,
+      var_within = var_ests$var_within,
+      min_m = 20,
+      p = 0.05)
 ```
+
 The output gives the recommended number of simulation datasets (`r`) and
 effective posterior samples per dataset (`m`) to achieve a standardised
-precision of `p = 0.05` assuming the burn-in period takes 10 times longer than simulating an effective posterior sample.
+precision of `p = 0.05`, assuming the burn-in period takes 10 times longer
+than generating one effective posterior sample.
+
+Alternatively, `optimize_allocation_from_ratios()` accepts the same inputs as ratios, since the
+optimal allocation depends only on these ratios rather than on the
+individual quantities themselves.
+
+```{r}
+variance_ratio <- var_ests$var_between / var_ests$var_within
+optimize_allocation_from_ratios(time_ratio = 10,
+        variance_ratio  = variance_ratio,
+        min_m      = 20,
+        p          = 0.05)
+```
+
+The two functions return the same result.
+

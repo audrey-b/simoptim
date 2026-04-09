@@ -4,7 +4,7 @@
 \alias{summarize_mcmc}
 \title{Summarize posterior samples for a parameter from an MCMC object}
 \usage{
-summarize_mcmc(mcmc_object, parameter, g = identity)
+summarize_mcmc(mcmc_object, parameter, transform = identity)
 }
 \arguments{
 \item{mcmc_object}{An \code{mcmc.list} object containing posterior samples
@@ -13,16 +13,16 @@ summarize_mcmc(mcmc_object, parameter, g = identity)
 \item{parameter}{A character string giving the name of the parameter to
 summarize. Must match a column name in \code{mcmc_object}.}
 
-\item{g}{A function to apply to the posterior samples before summarizing.
+\item{transform}{A function to apply to the posterior samples before summarizing.
 Defaults to \code{identity} (no transformation). Use this to summarize
-derived quantities (e.g. \code{g = log} or \code{g = function(x) x^2}).}
+derived quantities (e.g. \code{transform = log} or \code{transform = function(x) x^2}).}
 }
 \value{
 A named list with three numeric elements:
   \describe{
-    \item{mean}{Posterior mean of \code{g(parameter)}.}
-    \item{mcmcse}{Monte Carlo standard error of the posterior mean of \code{g(parameter)}.}
-    \item{var}{Posterior variance of \code{g(parameter)}.}
+    \item{mean}{Posterior mean of \code{transform(parameter)}.}
+    \item{mcmcse}{Monte Carlo standard error of the posterior mean of \code{transform(parameter)}.}
+    \item{var}{Posterior variance of \code{transform(parameter)}.}
   }
 }
 \description{
@@ -31,5 +31,5 @@ object, optionally applies a transformation, and returns the posterior mean,
 Monte Carlo standard error (MCMCSE), and posterior variance.
 }
 \seealso{
-\code{\link{estimate_variances}}, \code{\link{optim_2}}
+\code{\link{estimate_variances}}, \code{\link{optimize_allocation_from_ratios}}
 }
