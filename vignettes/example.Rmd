@@ -77,7 +77,6 @@ given parameter from each `mcmc.list`.
 
 ```{r}
 summaries <- lapply(analyses_results, summarize_mcmc, parameter = "theta")
-
 means  <- sapply(summaries, `[[`, "mean")
 mcmcses <- sapply(summaries, `[[`, "mcmcse")
 vars   <- sapply(summaries, `[[`, "var")
