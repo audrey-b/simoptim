@@ -3,11 +3,6 @@
 
 # simoptim
 
-<!-- badges: start -->
-
-![R-CMD-check](https://github.com/audrey-b/simoptim/workflows/R-CMD-check/badge.svg)
-<!-- badges: end -->
-
 `simoptim` is an R package for optimal allocation of sampling effort in
 Bayesian simulation studies with MCMC. Given estimates of two variance
 components — between-dataset variance and within-dataset posterior
@@ -15,8 +10,7 @@ variance — it computes the optimal number of simulation datasets `r` and
 effective posterior samples per dataset `m` that minimise total
 computational cost subject to a precision target.
 
-> **Note:** This package is under active development. The API may
-> change.
+> **Note:** This package is under development.
 
 ## Installation
 
@@ -32,8 +26,8 @@ affected by two sources of Monte Carlo error:
 
 - **Between-dataset variance** ($\sigma_1^2 / r$): variability across
   the `r` simulated datasets.
-- **Within-dataset variance** ($\sigma_2^2 / (r \cdot m)$): variability
-  due to running MCMC for only `m` effective samples per dataset.
+- **Within-dataset variance** ($\sigma_2^2 / (rm)$): variability due to
+  running MCMC for only `m` effective samples per dataset.
 
 `simoptim` implements the methodology of Beliveau et al. (in
 preparation) to choose `r` and `m` optimally given a precision target
