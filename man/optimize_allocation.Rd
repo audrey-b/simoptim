@@ -10,8 +10,8 @@ optimize_allocation(
   var_between,
   var_within,
   delta = NULL,
-  min_m = 1,
-  p = NULL
+  p = NULL,
+  min_m = 1
 )
 }
 \arguments{
@@ -30,12 +30,12 @@ See \code{\link{estimate_variances}}.}
 \item{delta}{The maximum acceptable total MCMCSE (i.e. the precision
 target). Exactly one of \code{delta} or \code{p} must be specified.}
 
-\item{min_m}{Minimum allowable number of effective posterior samples per
-dataset. Must be a positive integer. Defaults to \code{1}.}
-
 \item{p}{Standardised precision target, defined as
 \eqn{p = \Delta / \sigma_1}. Exactly one of \code{Delta} or \code{p}
 must be specified. If both are given, they must be mutually consistent.}
+
+\item{min_m}{Minimum allowable number of effective posterior samples per
+dataset. Must be a positive integer. Defaults to \code{1}.}
 }
 \value{
 A named list with two integer-valued elements:
